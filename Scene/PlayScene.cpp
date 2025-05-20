@@ -482,3 +482,17 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
     return map;
 }
 
+// Add this implementation to PlayScene.cpp
+
+void PlayScene::OnWin() {//changed
+    // Get the scoreboard scene
+    auto scoreboard = dynamic_cast<ScoreboardScene*>(Engine::GameEngine::GetInstance().GetScene("scoreboard"));
+
+    // Add the score if scoreboard exists
+    if (scoreboard) {
+        scoreboard->AddScore(lives, money, cheatsUsed);
+    }
+
+    // Change to win scene
+    Engine::GameEngine::GetInstance().ChangeScene("win");
+}

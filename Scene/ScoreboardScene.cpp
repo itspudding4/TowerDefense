@@ -23,6 +23,8 @@ void ScoreboardScene::Initialize() {
     waitingForName = false;
     newScore = 0;
     cheatsUsed = 0;
+    scoreLabelsId.clear();
+    scoreLabels.clear();
 
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
@@ -30,39 +32,71 @@ void ScoreboardScene::Initialize() {
     int halfH = h / 2;
 
     // Load background
-    AddNewObject(new Engine::Image("stage-select/background.png", 0, 0, w, h));
+    background = new Engine::Image("stage-select/dirt.png", 0, 0, w, h);
+    AddNewObject(background);
 
     // Create title
-    AddNewObject(new Engine::Label("SCOREBOARD", "pirulen.ttf", 48, halfW, 80, 255, 255, 255, 255, 0.5, 0.5));
+    titleLabel = new Engine::Label("SCOREBOARD", "pirulen.ttf", 48, halfW, 80, 255, 255, 255, 255, 0.5, 0.5);
+    AddNewObject(titleLabel);
 
     // Create back button
     Engine::ImageButton *btn;
     btn = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", halfW - 200, h - 100, 400, 100);
     btn->SetOnClickCallback(std::bind(&ScoreboardScene::BackOnClick, this, 1));
     AddNewControlObject(btn);
-    AddNewObject(new Engine::Label("Back", "pirulen.ttf", 48, halfW, h - 50, 0, 0, 0, 255, 0.5, 0.5));
+
+    backLabel = new Engine::Label("Back", "pirulen.ttf", 48, halfW, h - 50, 0, 0, 0, 255, 0.5, 0.5);
+    AddNewObject(backLabel);
 
     // Load scores from file
     LoadScores();
 
     // Create score labels
     int yPos = 150;
-    scoreLabelsId.clear();
 
-    // Header
-    Engine::Label* headerLabel = new Engine::Label("Rank     Player     Score", "pirulen.ttf", 28, halfW, yPos, 255, 255, 255, 255, 0.5, 0.5);
-    AddNewObject(headerLabel);
+    // Header - Separate columns for Rank, Player, Score
+    Engine::Label* rankHeader = new Engine::Label("Rank", "pirulen.ttf", 28, halfW - 350, yPos, 255, 255, 255, 255, 0.0, 0.5);
+    Engine::Label* nameHeader = new Engine::Label("Player", "pirulen.ttf", 28, halfW, yPos, 255, 255, 255, 255, 0.5, 0.5);
+    Engine::Label* scoreHeader = new Engine::Label("Score", "pirulen.ttf", 28, halfW + 350, yPos, 255, 255, 255, 255, 1.0, 0.5);
+
+    AddNewObject(rankHeader);
+    AddNewObject(nameHeader);
+    AddNewObject(scoreHeader);
+    scoreLabels.push_back(rankHeader);
+    scoreLabels.push_back(nameHeader);
+    scoreLabels.push_back(scoreHeader);
 
     yPos += 50;
 
     // Display top 10 scores
     int displayCount = std::min(10, static_cast<int>(scoreRecords.size()));
     for (int i = 0; i < displayCount; i++) {
-        std::string rankText = std::to_string(i + 1);
-        std::string scoreText = rankText + ".          " + scoreRecords[i].name + "          " + std::to_string(scoreRecords[i].score);
+        // Rank (left-aligned)
+        Engine::Label* rankLabel = new Engine::Label(
+            std::to_string(i + 1) + ".",
+            "pirulen.ttf", 24, halfW - 300, yPos, 255, 255, 255, 255, 0.0, 0.5
+        );
 
-        Engine::Label* scoreLabel = new Engine::Label(scoreText, "pirulen.ttf", 24, halfW, yPos, 255, 255, 255, 255, 0.5, 0.5);
+        // Player name (centered)
+        Engine::Label* nameLabel = new Engine::Label(
+            scoreRecords[i].name,
+            "pirulen.ttf", 24, halfW, yPos, 255, 255, 255, 255, 0.5, 0.5
+        );
+
+        // Score (right-aligned)
+        Engine::Label* scoreLabel = new Engine::Label(
+            std::to_string(scoreRecords[i].score),
+            "pirulen.ttf", 24, halfW + 300, yPos, 255, 255, 255, 255, 1.0, 0.5
+        );
+
+        AddNewObject(rankLabel);
+        AddNewObject(nameLabel);
         AddNewObject(scoreLabel);
+
+        scoreLabels.push_back(rankLabel);
+        scoreLabels.push_back(nameLabel);
+        scoreLabels.push_back(scoreLabel);
+
         yPos += 40;
     }
 
@@ -71,13 +105,21 @@ void ScoreboardScene::Initialize() {
 }
 
 void ScoreboardScene::Terminate() {
-    AudioHelper::StopSample(bgmInstance);
-    bgmInstance = std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE>();
+    // Stop BGM
+    if (bgmInstance) {
+        AudioHelper::StopSample(bgmInstance);
+        bgmInstance = std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE>();
+    }
 
     // Save scores before closing if needed
     if (waitingForName)
         SaveScores();
 
+    // Clear lists
+    scoreLabels.clear();
+    scoreLabelsId.clear();
+
+    // Base class terminate
     IScene::Terminate();
 }
 
@@ -203,12 +245,28 @@ void ScoreboardScene::LoadScores() {
     if (inFile.is_open()) {
         std::string name;
         int score;
-        while (inFile >> name >> score) {
-            ScoreRecord record;
-            record.name = name;
-            record.score = score;
-            scoreRecords.push_back(record);
+
+        // Read each line
+        std::string line;
+        while (std::getline(inFile, line)) {
+            // Find the last space to separate name and score
+            size_t lastSpace = line.find_last_of(" ");
+            if (lastSpace != std::string::npos) {
+                name = line.substr(0, lastSpace);
+                try {
+                    score = std::stoi(line.substr(lastSpace + 1));
+
+                    ScoreRecord record;
+                    record.name = name;
+                    record.score = score;
+                    scoreRecords.push_back(record);
+                } catch (std::exception& e) {
+                    // Error converting score, skip this record
+                    continue;
+                }
+            }
         }
+
         inFile.close();
 
         // Sort scores in descending order
