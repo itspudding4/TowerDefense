@@ -8,6 +8,11 @@ private:
     float ticks;
     ALLEGRO_SAMPLE_ID bgmId;
 
+    //changed 3 lines
+    bool waitingForName = false;
+    std::string playerName;
+    int finalScore = 0;
+
 public:
     explicit WinScene() = default;
     void Initialize() override;
@@ -15,6 +20,10 @@ public:
 
     void Update(float deltaTime) override;
     void BackOnClick(int stage);
+
+    //changed 2 lines
+    void Draw() const override;
+    void OnKeyDown(int keyCode) override;
 };
 
 #endif   // WINSCENE_HPP

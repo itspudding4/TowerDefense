@@ -9,15 +9,19 @@
 #include "UI/Component/ImageButton.hpp"
 #include "UI/Component/Label.hpp"
 #include "WinScene.hpp"
-
+#include "allegro5/allegro_primitives.h"//changed
+#include "Scene/ScoreboardScene.hpp"//changed
 void WinScene::Initialize() {
     ticks = 0;
+    //changed
+    waitingForName = true;
+    playerName = "";
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
     int halfW = w / 2;
     int halfH = h / 2;
-    AddNewObject(new Engine::Image("win/benjamin-sad.png", halfW, halfH, 0, 0, 0.5, 0.5));
-    AddNewObject(new Engine::Label("You Win!", "pirulen.ttf", 48, halfW, halfH / 4 - 10, 255, 255, 255, 255, 0.5, 0.5));
+    AddNewObject(new Engine::Image("win/benjamin-sad.png", halfW, halfH+30, 0, 0, 0.5, 0.5));
+    AddNewObject(new Engine::Label("You Win!", "pirulen.ttf", 48, halfW, halfH / 4 - 15, 255, 255, 255, 255, 0.5, 0.5));
     Engine::ImageButton *btn;
     btn = new Engine::ImageButton("win/dirt.png", "win/floor.png", halfW - 200, halfH * 7 / 4 - 50, 400, 100);
     btn->SetOnClickCallback(std::bind(&WinScene::BackOnClick, this, 2));
@@ -40,4 +44,58 @@ void WinScene::Update(float deltaTime) {
 void WinScene::BackOnClick(int stage) {
     // Change to select scene.
     Engine::GameEngine::GetInstance().ChangeScene("stage-select");
+}
+
+//changed
+void WinScene::Draw() const {
+    IScene::Draw();
+    if (waitingForName) {
+        int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
+        int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
+        int boxY = h/2 - 250; // Move box up by 70 pixels
+        // Draw rectangle
+        al_draw_filled_rectangle(w/2 - 150, boxY - 50, w/2 + 150, boxY + 50, al_map_rgb(50, 50, 50));
+        al_draw_rectangle(w/2 - 150, boxY - 50, w/2 + 150, boxY + 50, al_map_rgb(200, 200, 200), 2);
+        // Draw static prompt
+        Engine::Label namePrompt("Enter your name:", "pirulen.ttf", 28, w/2 -550, boxY, 255, 255, 255, 255, 0, 0.5);
+        namePrompt.Draw();
+        // Draw dynamic name (fixed position)
+        Engine::Label nameLabel(playerName + "_", "pirulen.ttf", 28, w/2 -130, boxY, 255, 255, 255, 255, 0, 0.5);
+        nameLabel.Draw();
+    }
+}
+
+void WinScene::OnKeyDown(int keyCode) {
+    if (!waitingForName) {
+        IScene::OnKeyDown(keyCode);
+        return;
+    }
+    if (keyCode == ALLEGRO_KEY_BACKSPACE) {
+        if (!playerName.empty())
+            playerName.pop_back();
+    } else if (keyCode == ALLEGRO_KEY_ENTER || keyCode == ALLEGRO_KEY_PAD_ENTER) {
+        if (!playerName.empty()) {
+            // Pass name and score to ScoreboardScene
+            auto scoreboard = dynamic_cast<ScoreboardScene*>(Engine::GameEngine::GetInstance().GetScene("scoreboard"));
+            if (scoreboard) {
+                scoreboard->AddScore(/*lives*/10, /*money*/100, /*cheats*/0, playerName); // Pass actual values
+            }
+            waitingForName = false;
+            Engine::GameEngine::GetInstance().ChangeScene("scoreboard");
+        }
+    } else if (keyCode >= ALLEGRO_KEY_A && keyCode <= ALLEGRO_KEY_Z) {
+        if (playerName.length() < 10) {
+            char c = 'A' + (keyCode - ALLEGRO_KEY_A);
+            playerName += c;
+        }
+    } else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9) {
+        if (playerName.length() < 10) {
+            char c = '0' + (keyCode - ALLEGRO_KEY_0);
+            playerName += c;
+        }
+    } else if (keyCode == ALLEGRO_KEY_SPACE) {
+        if (playerName.length() < 10 && !playerName.empty() && playerName.back() != ' ') {
+            playerName += ' ';
+        }
+    }
 }

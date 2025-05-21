@@ -152,10 +152,7 @@ void PlayScene::Update(float deltaTime) {
                 // delete UIGroup;
                 // delete imgTarget;
                 // Win.
-                auto scoreboard = dynamic_cast<ScoreboardScene*>(Engine::GameEngine::GetInstance().GetScene("scoreboard"));//changed
-                if (scoreboard) {
-                    scoreboard->AddScore(lives, money, cheatsUsed);
-                }
+                 auto scoreboard = dynamic_cast<ScoreboardScene*>(Engine::GameEngine::GetInstance().GetScene("scoreboard"));//changed
                 Engine::GameEngine::GetInstance().ChangeScene("win");
             }
             continue;
@@ -307,9 +304,7 @@ void PlayScene::Hit() {
     UILives->Text=std::string("Life ")+std::to_string(lives);
     if (lives <= 0) {
         auto scoreboard = dynamic_cast<ScoreboardScene*>(Engine::GameEngine::GetInstance().GetScene("scoreboard"));//changed
-        if (scoreboard) {
-            scoreboard->AddScore(lives, money, cheatsUsed);
-        }
+
         Engine::GameEngine::GetInstance().ChangeScene("lose");
     }
 }
@@ -484,15 +479,18 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
 
 // Add this implementation to PlayScene.cpp
 
-void PlayScene::OnWin() {//changed
-    // Get the scoreboard scene
-    auto scoreboard = dynamic_cast<ScoreboardScene*>(Engine::GameEngine::GetInstance().GetScene("scoreboard"));
+void PlayScene::OnWin() {
+    // Get game state values
+    int remainingLives = lives;  // Use actual lives variable from PlayScene
+    int totalMoney = money;      // Use actual money variable from PlayScene
+    int totalCheats = 0;        // Track cheats if implemented
 
-    // Add the score if scoreboard exists
-    if (scoreboard) {
-        scoreboard->AddScore(lives, money, cheatsUsed);
+    // Get the scoreboard scene and add the score
+    auto* scene = dynamic_cast<ScoreboardScene*>(Engine::GameEngine::GetInstance().GetScene("scoreboard"));
+    if (scene) {
+        scene->AddScore(remainingLives, totalMoney, totalCheats, "Player");
     }
 
-    // Change to win scene
+    // Change to scoreboard scene directly
     Engine::GameEngine::GetInstance().ChangeScene("win");
 }

@@ -30,8 +30,11 @@ private:
     std::string playerName;
     bool waitingForName;
     int newScore;
-    int cheatsUsed; // Added this line to fix the missing variable
-
+    int cheatsUsed;
+    int nextBtnX = 1200, nextBtnY = 600, btnW = 120, btnH = 60;
+    int prevBtnX = 300, prevBtnY = 600;
+    int currentPage = 0;
+    const int scoresPerPage = 5;
 public:
     explicit ScoreboardScene() = default;
     void Initialize() override;
@@ -40,9 +43,9 @@ public:
     void OnMouseDown(int button, int mx, int my) override;
     void OnMouseMove(int mx, int my) override;
     void OnKeyDown(int keyCode) override;
-
+    void RefreshScoreLabels();
     // Function to add new score
-    void AddScore(int lives, int money, int cheatsUsed);
+    void AddScore(int lives, int money, int cheats,const std::string& name);
 
     // Function to save scores to file
     void SaveScores();
@@ -51,9 +54,7 @@ public:
     void LoadScores();
 
     // Calculate score based on the formula
-    static int CalculateScore(int lives, int money, int cheatsUsed) {
-        return (lives * 10000) + money - (cheatsUsed * 15000);
-    }
+    int CalculateScore(int, int, int) ;
 
     void BackOnClick(int stage);
 };
