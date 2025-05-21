@@ -1,0 +1,10 @@
+^C:\USERS\USER\CLIONPROJECTS\2025_I2P2_TOWERDEFENSE\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/user/CLionProjects/2025_I2P2_TowerDefense -BC:/Users/user/CLionProjects/2025_I2P2_TowerDefense/build --check-stamp-file C:/Users/user/CLionProjects/2025_I2P2_TowerDefense/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

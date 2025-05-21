@@ -20,7 +20,7 @@ void Slider::Draw() const {
     End1.Draw();
     End2.Draw();
     ImageButton::Draw();
-//c
+
 }
 void Slider::SetOnValueChangedCallback(std::function<void(float value)> onValueChangedCallback) {
     OnValueChangedCallback = onValueChangedCallback;

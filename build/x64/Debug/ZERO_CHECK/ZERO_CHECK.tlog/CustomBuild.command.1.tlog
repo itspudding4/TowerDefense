@@ -1,0 +1,10 @@
+^C:\USERS\USER\CLIONPROJECTS\2025_I2P2_TOWERDEFENSE\BUILD\CMAKEFILES\B6B1D4E99CBBA379118036CF11B89B22\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/user/CLionProjects/2025_I2P2_TowerDefense -BC:/Users/user/CLionProjects/2025_I2P2_TowerDefense/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/user/CLionProjects/2025_I2P2_TowerDefense/build/2025_I2P2_TowerDefense.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
