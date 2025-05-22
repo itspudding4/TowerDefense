@@ -280,7 +280,7 @@ void PlayScene::OnKeyDown(int keyCode) {
               ++it2;
           }if (it1==keyStrokes.end()) {
               keyStrokes.clear();
-              EarnMoney(10000);
+              EarnMoney(1000);
               UIGroup->AddNewObject(new Plane) ;
               cheatsUsed++;//changed
           }
@@ -481,9 +481,9 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
 
 void PlayScene::OnWin() {
     // Get game state values
-    int remainingLives = lives;  // Use actual lives variable from PlayScene
-    int totalMoney = money;      // Use actual money variable from PlayScene
-    int totalCheats = 0;        // Track cheats if implemented
+    int remainingLives = this->lives;  // Use actual lives variable from PlayScene
+    int totalMoney = this->money;      // Use actual money variable from PlayScene
+    int totalCheats = this->cheatsUsed;        // Track cheats if implemented
 
     // Get the scoreboard scene and add the score
     auto* scene = dynamic_cast<ScoreboardScene*>(Engine::GameEngine::GetInstance().GetScene("scoreboard"));

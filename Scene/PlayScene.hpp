@@ -28,6 +28,7 @@ private:
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> deathBGMInstance;
     int cheatsUsed;//changed
 
+
 protected:
     int lives;
     int money;
@@ -35,6 +36,7 @@ protected:
     int wave;//changed
 
 public:
+
     static bool DebugMode;
     static const std::vector<Engine::Point> directions;
     static const int MapWidth, MapHeight;
@@ -85,6 +87,7 @@ public:
     std::vector<std::vector<int>> CalculateBFSDistance();
     // void ModifyReadMapTiles();
     void OnWin(); //changed
-
+    int Getlives() const{return lives;}
+    int GetchatesUsed() const{return cheatsUsed;}
 };
 #endif   // PLAYSCENE_HPP

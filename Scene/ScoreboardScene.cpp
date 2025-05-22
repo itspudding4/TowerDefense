@@ -288,22 +288,19 @@ void ScoreboardScene::BackOnClick(int stage) {
     Engine::GameEngine::GetInstance().ChangeScene("start");
 }
 int ScoreboardScene::CalculateScore(int lives, int money, int cheatsUsed) {
-    // Base score from remaining lives (each life is worth 10000 points)
-    int lifeScore = lives * 10000;
-
-    // Money score (direct addition of money earned)
+    int lifeScore = lives * 1000;
     int moneyScore = money;
-
-    // Penalty for using cheats (5000 points per cheat used)
     int cheatPenalty = cheatsUsed * 5000;
 
-    // Calculate final score
-    int finalScore = lifeScore + moneyScore - cheatPenalty;
+    std::cout << "Lives: " << lives << " (Score: " << lifeScore << ")" << std::endl;
+    std::cout << "Money: " << money << std::endl;
+    std::cout << "Cheats: " << cheatsUsed << " (Penalty: " << cheatPenalty << ")" << std::endl;
 
-    // Ensure score doesn't go negative
+    int finalScore = lifeScore + moneyScore - cheatPenalty;
     return std::max(finalScore, 0);
 }
 void ScoreboardScene::AddScore(int lives, int money, int cheats,const std::string& name) {
+    LoadScores();
     cheatsUsed = cheats;
     newScore = CalculateScore(lives, money, cheatsUsed);
     playerName = name;
@@ -325,7 +322,7 @@ void ScoreboardScene::AddScore(int lives, int money, int cheats,const std::strin
 
 void ScoreboardScene::SaveScores() {
     std::ofstream outFile("Resource/scoreboard.txt");
-    if (outFile.is_open()) {
+    if (outFile.is_open() && !scoreRecords.empty()) {
         for (const auto& record : scoreRecords) {
             outFile << record.name << " " << record.score << std::endl;
         }

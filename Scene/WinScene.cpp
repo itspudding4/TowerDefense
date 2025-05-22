@@ -11,6 +11,7 @@
 #include "WinScene.hpp"
 #include "allegro5/allegro_primitives.h"//changed
 #include "Scene/ScoreboardScene.hpp"//changed
+
 void WinScene::Initialize() {
     ticks = 0;
     //changed
@@ -77,8 +78,9 @@ void WinScene::OnKeyDown(int keyCode) {
         if (!playerName.empty()) {
             // Pass name and score to ScoreboardScene
             auto scoreboard = dynamic_cast<ScoreboardScene*>(Engine::GameEngine::GetInstance().GetScene("scoreboard"));
-            if (scoreboard) {
-                scoreboard->AddScore(/*lives*/10, /*money*/100, /*cheats*/0, playerName); // Pass actual values
+            auto playScene = dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetScene("play"));
+            if (scoreboard && playScene) {
+                scoreboard->AddScore(/*lives*/playScene->Getlives(), /*money*/playScene->GetMoney(), /*cheats*/playScene->GetchatesUsed(), playerName); // Pass actual values
             }
             waitingForName = false;
             Engine::GameEngine::GetInstance().ChangeScene("scoreboard");
