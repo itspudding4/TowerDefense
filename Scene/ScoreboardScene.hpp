@@ -18,6 +18,7 @@ private:
     struct ScoreRecord {
         std::string name;
         int score;
+        std::string dateTime;
     };
 
     std::vector<ScoreRecord> scoreRecords;
