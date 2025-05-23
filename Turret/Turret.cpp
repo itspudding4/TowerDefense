@@ -27,26 +27,42 @@ void Turret::Update(float deltaTime) {
         return;
     if (Target) {
         Engine::Point diff = Target->Position - Position;
-        if (diff.Magnitude() > CollisionRadius) {
+        if (diff.Magnitude() > CollisionRadius || !Target->IsVisible()) {
+            if (lockedTurretIterator != Target->lockedTurrets.end()) {
+                Target->lockedTurrets.erase(lockedTurretIterator);
+            }
+            Target = nullptr;
+            lockedTurretIterator = std::list<Turret *>::iterator();
+            return;
+        }
+        if (!Target->IsVisible()) {
             Target->lockedTurrets.erase(lockedTurretIterator);
             Target = nullptr;
             lockedTurretIterator = std::list<Turret *>::iterator();
+            return;
+        }
+        // Shoot reload.
+        reload -= deltaTime;
+        if (reload <= 0) {
+            reload = coolDown;
+            CreateBullet();
         }
     }
     if (!Target) {
-        // Lock first seen target.
-        // Can be improved by Spatial Hash, Quad Tree, ...
-        // However simply loop through all enemies is enough for this program.
         for (auto &it : scene->EnemyGroup->GetObjects()) {
-            Engine::Point diff = it->Position - Position;
+            Enemy* enemy = dynamic_cast<Enemy*>(it);
+            if (!enemy) continue;
+            if (!enemy->IsVisible()) continue; // 🟡 Skip invisible enemies
+            Engine::Point diff = enemy->Position - Position;
             if (diff.Magnitude() <= CollisionRadius) {
-                Target = dynamic_cast<Enemy *>(it);
+                Target = enemy;
                 Target->lockedTurrets.push_back(this);
                 lockedTurretIterator = std::prev(Target->lockedTurrets.end());
                 break;
             }
         }
     }
+
     if (Target) {
         Engine::Point originRotation = Engine::Point(cos(Rotation - ALLEGRO_PI / 2), sin(Rotation - ALLEGRO_PI / 2));
         Engine::Point targetRotation = (Target->Position - Position).Normalize();

@@ -16,6 +16,7 @@
 #include "Turret/Turret.hpp"
 #include "UI/Animation/DirtyEffect.hpp"
 #include "UI/Animation/ExplosionEffect.hpp"
+#include "ninja_Enemy.hpp"
 
 PlayScene *Enemy::getPlayScene() {
     return dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene());
@@ -36,6 +37,7 @@ Enemy::Enemy(std::string img, float x, float y, float radius, float speed, float
     reachEndTime = 0;
 }
 void Enemy::Hit(float damage) {
+
     hp -= damage;
     if (hp <= 0) {
         OnExplode();

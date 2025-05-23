@@ -99,6 +99,8 @@ add_executable(2025_I2P2_TowerDefense
     main.cpp
         Scene/ScoreboardScene.cpp
         Scene/ScoreboardScene.hpp
+        Enemy/ninja_Enemy.cpp
+        Enemy/ninja_Enemy.hpp
 )
 
 IF (WIN32)

@@ -19,6 +19,7 @@
 #include "PlayScene.hpp"
 
 #include "Enemy/ga_plane.hpp"
+#include "Enemy/ninja_Enemy.hpp"
 #include "Turret/LaserTurret.hpp"
 #include "Turret/MachineGunTurret.hpp"
 #include "Turret/TurretButton.hpp"
@@ -175,6 +176,10 @@ void PlayScene::Update(float deltaTime) {
             //     ...
             case 3:
                 EnemyGroup->AddNewObject(enemy = new TankEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
+                break;
+
+            case 4:
+                EnemyGroup->AddNewObject(enemy = new ninja_Enemy(SpawnCoordinate.x, SpawnCoordinate.y));
                 break;
             default:
                 continue;
