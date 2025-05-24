@@ -226,6 +226,7 @@ void PlayScene::OnMouseDown(int button, int mx, int my) {
                 TowerGroup->RemoveObject(turret->GetObjectIterator());
                 mapDistance = CalculateBFSDistance();
                 for (auto& enemy : EnemyGroup->GetObjects())
+
                     dynamic_cast<Enemy*>(enemy)->UpdatePath(mapDistance);
                 break;
             }
@@ -540,6 +541,7 @@ bool PlayScene::CheckSpaceValid(int x, int y) {
         if (pnt.x >= MapWidth) pnt.x = MapWidth - 1;
         if (pnt.y < 0) pnt.y = 0;
         if (pnt.y >= MapHeight) pnt.y = MapHeight - 1;
+        if (dynamic_cast<ga_planeEnemy*>(it)) continue;
         if (map[pnt.y][pnt.x] == -1)
             return false;
     }
@@ -547,6 +549,7 @@ bool PlayScene::CheckSpaceValid(int x, int y) {
     mapState[y][x] = TILE_OCCUPIED;
     mapDistance = map;
     for (auto &it : EnemyGroup->GetObjects())
+
         dynamic_cast<Enemy *>(it)->UpdatePath(mapDistance);
     return true;
 }

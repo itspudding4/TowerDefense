@@ -5,5 +5,6 @@
 class ga_planeEnemy : public Enemy {
 public:
     ga_planeEnemy(int x, int y);
+    void UpdatePath(const std::vector<std::vector<int>>& mapDistance) override;
 };
 #endif

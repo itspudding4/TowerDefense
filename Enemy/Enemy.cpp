@@ -99,6 +99,14 @@ void Enemy::Update(float deltaTime) {
     }
     float remainSpeed = speed * deltaTime;
     while (remainSpeed != 0) {
+        if (!path.empty()) {
+            Engine::Point target = path.back() * PlayScene::BlockSize + Engine::Point(PlayScene::BlockSize / 2, PlayScene::BlockSize / 2);
+            Engine::Point vec = target - Position;
+            if (vec.Magnitude() < 1.0f) { // Already very close to end
+                Position = target;
+                path.pop_back();
+            }
+        }
         if (path.empty()) {
             // Reach end point.
             Hit(hp);
@@ -115,7 +123,7 @@ void Enemy::Update(float deltaTime) {
         // 4. to end point
         reachEndTime = (vec.Magnitude() + (path.size() - 1) * PlayScene::BlockSize - remainSpeed) / speed;
         Engine::Point normalized = vec.Normalize();
-        if (remainSpeed - vec.Magnitude() > 0) {
+        if (remainSpeed >= vec.Magnitude()) {
             Position = target;
             path.pop_back();
             remainSpeed -= vec.Magnitude();
