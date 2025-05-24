@@ -20,6 +20,7 @@ protected:
     PlayScene *getPlayScene();
     // Reference: Design Patterns - Factory Method.
     virtual void CreateBullet() = 0;
+    virtual bool shouldRotate() const { return true; }
 
 public:
     bool Enabled = true;

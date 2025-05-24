@@ -13,6 +13,7 @@ class Turret;
 
 class Enemy : public Engine::Sprite {
 protected:
+    float freezeTime = 0.0f;
     std::vector<Engine::Point> path;
     float speed;
     float hp;
@@ -31,5 +32,7 @@ public:
     void Update(float deltaTime) override;
     void Draw() const override;
     virtual bool IsVisible() const { return true; }
+    void Freeze(float duration);
+    bool IsFrozen() const { return freezeTime > 0.0f; }
 };
 #endif   // ENEMY_HPP

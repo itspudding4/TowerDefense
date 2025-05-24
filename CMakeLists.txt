@@ -101,6 +101,14 @@ add_executable(2025_I2P2_TowerDefense
         Scene/ScoreboardScene.hpp
         Enemy/ninja_Enemy.cpp
         Enemy/ninja_Enemy.hpp
+        Turret/CircleShotTurret.cpp
+        Turret/CircleShotTurret.hpp
+        Turret/IceTurret.cpp
+        Turret/IceTurret.hpp
+        Bullet/IceBullet.cpp
+        Bullet/IceBullet.hpp
+        Turret/shovel.cpp
+        Turret/shovel.hpp
 )
 
 IF (WIN32)

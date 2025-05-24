@@ -23,6 +23,9 @@
 #include "Turret/LaserTurret.hpp"
 #include "Turret/MachineGunTurret.hpp"
 #include "Turret/TurretButton.hpp"
+#include "Turret/CircleShotTurret.hpp"
+#include "Turret/IceTurret.hpp"
+#include "Turret/shovel.hpp"
 #include "UI/Animation/DirtyEffect.hpp"
 #include "UI/Animation/Plane.hpp"
 #include "UI/Component/Label.hpp"
@@ -211,13 +214,39 @@ void PlayScene::Draw() const {
     }
 }
 void PlayScene::OnMouseDown(int button, int mx, int my) {
-    if ((button & 1) && !imgTarget->Visible && preview) {
-        // Cancel turret construct.
+    if (shovelMode  && (button & 1)) {
+        int gridX = mx / BlockSize;
+        int gridY = my / BlockSize;
+        std::cout << "Shovel mode clicked at " << gridX << ", " << gridY << std::endl;
+        for (auto& obj : TowerGroup->GetObjects()) {
+            Turret* turret = dynamic_cast<Turret*>(obj);
+            if (turret && (int)(turret->Position.x / BlockSize) == gridX && (int)(turret->Position.y / BlockSize) == gridY) {
+                EarnMoney(turret->GetPrice() / 2);
+                mapState[gridY][gridX] = TILE_DIRT;
+                TowerGroup->RemoveObject(turret->GetObjectIterator());
+                mapDistance = CalculateBFSDistance();
+                for (auto& enemy : EnemyGroup->GetObjects())
+                    dynamic_cast<Enemy*>(enemy)->UpdatePath(mapDistance);
+                break;
+            }
+        }
+        if (preview) {
+            UIGroup->RemoveObject(preview->GetObjectIterator());
+            preview = nullptr;
+        }
+        // If no turret was removed, still cancel shovel mode
+        shovelMode = false;
+        return;
+    }
+    // Your original turret placing logic here (no need to check for button == 4)
+    if (!imgTarget->Visible && preview) {
         UIGroup->RemoveObject(preview->GetObjectIterator());
         preview = nullptr;
     }
+
     IScene::OnMouseDown(button, mx, my);
 }
+
 void PlayScene::OnMouseMove(int mx, int my) {
     IScene::OnMouseMove(mx, my);
     const int x = mx / BlockSize;
@@ -231,6 +260,7 @@ void PlayScene::OnMouseMove(int mx, int my) {
     imgTarget->Position.y = y * BlockSize;
 }
 void PlayScene::OnMouseUp(int button, int mx, int my) {
+
     IScene::OnMouseUp(button, mx, my);
     if (!imgTarget->Visible)
         return;
@@ -390,6 +420,25 @@ void PlayScene::ConstructUI() {
                            Engine::Sprite("play/turret-2.png", 1370, 136 - 8, 0, 0, 0, 0), 1370, 136, LaserTurret::Price);
     btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 1));
     UIGroup->AddNewControlObject(btn);
+    //Button 3
+    btn = new TurretButton("play/floor.png", "play/dirt.png",
+    Engine::Sprite("play/tower-base.png", 1446, 136, 0, 0, 0, 0),
+    Engine::Sprite("play/turret-fire.png", 1446, 128, 0, 0, 0, 0), 1446, 136, CircleShotTurret::Price);
+    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 2));
+    UIGroup->AddNewControlObject(btn);
+    //Button 4
+    btn = new TurretButton("play/floor.png", "play/dirt.png",
+    Engine::Sprite("play/tower-base.png", 1522, 136, 0, 0, 0, 0),
+    Engine::Sprite("play/turret-ice.png", 1522, 128, 0, 0, 0, 0), 1522, 136, IceTurret::Price);
+    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 3));
+    UIGroup->AddNewControlObject(btn);
+    // shovel
+    btn = new TurretButton("play/floor.png", "play/dirt.png",
+    Engine::Sprite("play/tool-base.png", 1294, 300, 0, 0, 0, 0),
+    Engine::Sprite("play/shovel.png", 1294, 292, 0, 0, 0, 0), 1294, 300, 0);
+    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 4));
+    UIGroup->AddNewControlObject(btn);
+
 
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
@@ -397,14 +446,69 @@ void PlayScene::ConstructUI() {
     dangerIndicator = new Engine::Sprite("play/benjamin.png", w - shift, h - shift);
     dangerIndicator->Tint.a = 0;
     UIGroup->AddNewObject(dangerIndicator);
+
+    UIGroup->AddNewObject(new Engine::Label(
+    std::string("$") + std::to_string(MachineGunTurret::Price),
+    "pirulen.ttf", 20, 1294, 200));
+
+    UIGroup->AddNewObject(new Engine::Label(
+        std::string("$") + std::to_string(LaserTurret::Price),
+        "pirulen.ttf", 20, 1370, 200));
+
+    UIGroup->AddNewObject(new Engine::Label(
+        std::string("$") + std::to_string(CircleShotTurret::Price),
+        "pirulen.ttf", 20, 1446, 200));
+
+    UIGroup->AddNewObject(new Engine::Label(
+        std::string("$") + std::to_string(IceTurret::Price),
+        "pirulen.ttf", 20, 1522, 200));
+
+    UIGroup->AddNewObject(new Engine::Label(
+        std::string("FREE") ,
+        "pirulen.ttf", 20, 1294, 370));
 }
 
 void PlayScene::UIBtnClicked(int id) {
     Turret *next_preview = nullptr;
-    if (id == 0 && money >= MachineGunTurret::Price)
+
+    if (id == 0 && money >= MachineGunTurret::Price) {
         next_preview = new MachineGunTurret(0, 0);
-    else if (id == 1 && money >= LaserTurret::Price)
+        shovelMode = false;
+    }
+    else if (id == 1 && money >= LaserTurret::Price) {
         next_preview = new LaserTurret(0, 0);
+        shovelMode = false;
+    }
+    else if (id == 2 && money >= CircleShotTurret::Price) {
+        next_preview = new CircleShotTurret(0, 0);
+        shovelMode = false;
+    }
+    else if (id == 3 && money >= IceTurret::Price) {
+        next_preview = new IceTurret(0, 0);
+        shovelMode = false;
+    }
+    else if (id == 4) { // Shovel tool
+        shovelMode = true;
+
+        if (preview) {
+            UIGroup->RemoveObject(preview->GetObjectIterator());
+            preview = nullptr;
+        }
+
+        next_preview = new Shovel(Engine::GameEngine::GetInstance().GetMousePosition().x,
+                          Engine::GameEngine::GetInstance().GetMousePosition().y);
+        preview = next_preview;
+        preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
+        preview->Tint = al_map_rgba(255, 255, 255, 200); // transparent like turrets
+        preview->Enabled = false;
+        preview->Preview = true;
+        UIGroup->AddNewObject(preview);
+        OnMouseMove(preview->Position.x, preview->Position.y); // update shovel position
+        return;
+    }
+
+
+    shovelMode=false;
     if (!next_preview)
         return;   // not enough money or invalid turret.
 

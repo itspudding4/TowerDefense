@@ -25,7 +25,7 @@ void Turret::Update(float deltaTime) {
     imgBase.Tint = Tint;
     if (!Enabled)
         return;
-    if (Target) {
+    if (Target ) {
         Engine::Point diff = Target->Position - Position;
         if (diff.Magnitude() > CollisionRadius || !Target->IsVisible()) {
             if (lockedTurretIterator != Target->lockedTurrets.end()) {
@@ -52,7 +52,7 @@ void Turret::Update(float deltaTime) {
         for (auto &it : scene->EnemyGroup->GetObjects()) {
             Enemy* enemy = dynamic_cast<Enemy*>(it);
             if (!enemy) continue;
-            if (!enemy->IsVisible()) continue; // 🟡 Skip invisible enemies
+            if (!enemy->IsVisible()) continue; //  Skip invisible enemies
             Engine::Point diff = enemy->Position - Position;
             if (diff.Magnitude() <= CollisionRadius) {
                 Target = enemy;
@@ -63,7 +63,7 @@ void Turret::Update(float deltaTime) {
         }
     }
 
-    if (Target) {
+    if (Target  && shouldRotate()) {
         Engine::Point originRotation = Engine::Point(cos(Rotation - ALLEGRO_PI / 2), sin(Rotation - ALLEGRO_PI / 2));
         Engine::Point targetRotation = (Target->Position - Position).Normalize();
         float maxRotateRadian = rotateRadian * deltaTime;

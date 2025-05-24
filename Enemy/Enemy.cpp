@@ -21,6 +21,10 @@
 PlayScene *Enemy::getPlayScene() {
     return dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene());
 }
+void Enemy::Freeze(float duration) {
+    if (duration > freezeTime)
+        freezeTime = duration;
+}
 void Enemy::OnExplode() {
     getPlayScene()->EffectGroup->AddNewObject(new ExplosionEffect(Position.x, Position.y));
     std::random_device dev;
@@ -86,6 +90,13 @@ void Enemy::UpdatePath(const std::vector<std::vector<int>> &mapDistance) {
 }
 void Enemy::Update(float deltaTime) {
     // Pre-calculate the velocity.
+    if (freezeTime > 0.0f) {
+        freezeTime -= deltaTime;
+        if (freezeTime < 0.0f) freezeTime = 0.0f;
+        Velocity = Engine::Point(0, 0);
+        Sprite::Update(deltaTime);
+        return;
+    }
     float remainSpeed = speed * deltaTime;
     while (remainSpeed != 0) {
         if (path.empty()) {

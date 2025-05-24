@@ -27,7 +27,7 @@ private:
     ALLEGRO_SAMPLE_ID bgmId;
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> deathBGMInstance;
     int cheatsUsed;//changed
-
+    bool shovelMode = false;
 
 protected:
     int lives;
