@@ -8,7 +8,7 @@
 #include <cmath>
 #include <string>
 
-Shovel::Shovel(float x, float y) : Turret("play/tower-base.png", "play/shovel.png", x, y, 0,  0, 0) {
+Shovel::Shovel(float x, float y) : Turret("play/shovel.png", "play/shovel.png", x, y, 0,  0, 0) {
 }
 
 void Shovel::Update(float deltaTime) {

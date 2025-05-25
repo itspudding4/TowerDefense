@@ -29,6 +29,7 @@ private:
     int cheatsUsed;//changed
     bool shovelMode = false;
 
+
 protected:
     int lives;
     int money;
@@ -36,7 +37,10 @@ protected:
     int wave;//changed
 
 public:
+    int dmgMultiplierPrice = 300;
 
+    float dmgMultiplier = 1.0f;
+    void PauseOnClick();
     static bool DebugMode;
     static const std::vector<Engine::Point> directions;
     static const int MapWidth, MapHeight;
@@ -61,6 +65,7 @@ public:
     Engine::Label *UILives;
     Engine::Image *imgTarget;
     Engine::Sprite *dangerIndicator;
+    Engine::Label* dmgMultiplierLabel=nullptr;
     Turret *preview;
     std::vector<std::vector<TileType>> mapState;
     std::vector<std::vector<int>> mapDistance;

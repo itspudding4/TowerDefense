@@ -13,10 +13,10 @@
 #include "CircleShotTurret.hpp"
 #include "Scene/PlayScene.hpp"
 
-const int CircleShotTurret::Price = 300;
+const int CircleShotTurret::Price = 150;
 
 CircleShotTurret::CircleShotTurret(float x, float y)
-    : Turret("play/tower-base.png", "play/turret-fire.png", x, y, 400, Price, 3) {
+    : Turret("play/tower-base.png", "play/turret-fire.png", x, y, 450, Price, 2.5) {
     Anchor.y += 8.0f / GetBitmapHeight();
 }
 void CircleShotTurret::Update(float deltaTime) {

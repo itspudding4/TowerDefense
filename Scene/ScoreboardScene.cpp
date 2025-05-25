@@ -45,11 +45,11 @@ void ScoreboardScene::Initialize() {
     int halfH = h / 2;
 
     // Load background
-    background = new Engine::Image("stage-select/dirt.png", 0, 0, w, h);
-    AddNewObject(background);
+    //background = new Engine::Image("stage-select/dirt.png", 0, 0, w, h);
+    //AddNewObject(background);
 
     // Create title
-    titleLabel = new Engine::Label("SCOREBOARD", "pirulen.ttf", 48, halfW, 80, 255, 255, 255, 255, 0.5, 0.5);
+    titleLabel = new Engine::Label("SCOREBOARD", "pirulen.ttf", 48, halfW, 80, 0, 255, 0, 255, 0.5, 0.5);
     AddNewObject(titleLabel);
 
     // Create back button
@@ -66,10 +66,10 @@ void ScoreboardScene::Initialize() {
 
     // Create headers
     int yPos = 150;
-    Engine::Label* rankHeader = new Engine::Label("Rank", "pirulen.ttf", 30, halfW - 350, yPos, 255, 255, 255, 255, 0.0, 0.5);
-    Engine::Label* nameHeader = new Engine::Label("Player", "pirulen.ttf", 30, halfW+30, yPos, 255, 255, 255, 255, 0.5, 0.5);
-    Engine::Label* scoreHeader = new Engine::Label("Score", "pirulen.ttf", 30, halfW +450, yPos, 255, 255, 255, 255, 1.0, 0.5);
-    Engine::Label* dateHeader = new Engine::Label("Time", "pirulen.ttf", 30, halfW -510, yPos, 255, 255, 255, 255, 1.0, 0.5);
+    Engine::Label* rankHeader = new Engine::Label("Rank", "pirulen.ttf", 30, halfW - 350, yPos, 0, 255, 0, 255, 0.0, 0.5);
+    Engine::Label* nameHeader = new Engine::Label("Player", "pirulen.ttf", 30, halfW+30, yPos, 0, 255, 0, 255, 0.5, 0.5);
+    Engine::Label* scoreHeader = new Engine::Label("Score", "pirulen.ttf", 30, halfW +450, yPos, 0, 255, 0, 255, 1.0, 0.5);
+    Engine::Label* dateHeader = new Engine::Label("Time", "pirulen.ttf", 30, halfW -510, yPos, 0, 255, 0, 255, 1.0, 0.5);
     AddNewObject(rankHeader);
     AddNewObject(nameHeader);
     AddNewObject(scoreHeader);
@@ -151,7 +151,7 @@ void ScoreboardScene::OnMouseDown(int button, int mx, int my) {
         RefreshScoreLabels();
              }
 }
-// C++
+
 void ScoreboardScene::RefreshScoreLabels() {
     // Remove old score labels first (excluding header labels)
     for (size_t i = 4; i < scoreLabels.size(); i++) {
@@ -185,19 +185,19 @@ void ScoreboardScene::RefreshScoreLabels() {
     for (int i = start; i < end; ++i) {
         Engine::Label* rankLabel = new Engine::Label(
             std::to_string(i + 1) + ".", "pirulen.ttf", 24,
-            halfW - 300, yPos, 255, 255, 255, 255, 0.0, 0.5
+            halfW - 300, yPos, 0, 255, 0, 255, 0.0, 0.5
         );
         Engine::Label* nameLabel = new Engine::Label(
             scoreRecords[i].name, "pirulen.ttf", 24,
-            halfW+30, yPos, 255, 255, 255, 255, 0.5, 0.5
+            halfW+30, yPos, 0, 255, 0, 255, 0.5, 0.5
         );
         Engine::Label* scoreLabel = new Engine::Label(
             std::to_string(scoreRecords[i].score), "pirulen.ttf", 24,
-            halfW +430, yPos, 255, 255, 255, 255, 1.0, 0.5
+            halfW +430, yPos, 0, 255, 0, 255, 1.0, 0.5
         );
         Engine::Label* dateLabel = new Engine::Label(
             scoreRecords[i].dateTime, "pirulen.ttf", 20,
-            halfW -450, yPos, 255, 255, 255, 255, 1.0, 0.5
+            halfW -450, yPos, 0, 255, 0, 255, 1.0, 0.5
         );
 
         AddNewObject(rankLabel);

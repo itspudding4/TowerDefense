@@ -30,7 +30,7 @@
 #include "UI/Animation/Plane.hpp"
 #include "UI/Component/Label.hpp"
 #include "Scene/ScoreboardScene.hpp"
-
+#include "UI/Component/ImageButton.hpp"
 // TODO HACKATHON-4 (1/3): Trace how the game handles keyboard input.
 // TODO HACKATHON-4 (2/3): Find the cheat code sequence in this file.
 // TODO HACKATHON-4 (3/3): When the cheat code is entered, a plane should be spawned and added to the scene.
@@ -62,7 +62,7 @@ void PlayScene::Initialize() {
     ticks = 0;
     deathCountDown = -1;
     lives = 10;
-    money = 150;
+    money = 300;
     SpeedMult = 1;
     // Add groups from bottom to top.
     AddNewObject(TileMapGroup = new Group());
@@ -239,7 +239,7 @@ void PlayScene::OnMouseDown(int button, int mx, int my) {
         shovelMode = false;
         return;
     }
-    // Your original turret placing logic here (no need to check for button == 4)
+    //  original turret placing logic here (no need to check for button == 4)
     if (!imgTarget->Visible && preview) {
         UIGroup->RemoveObject(preview->GetObjectIterator());
         preview = nullptr;
@@ -350,6 +350,12 @@ int PlayScene::GetMoney() const {
 void PlayScene::EarnMoney(int money) {
     this->money += money;
     UIMoney->Text = std::string("$") + std::to_string(this->money);
+    if (dmgMultiplierLabel) {
+        if (this->money >= dmgMultiplierPrice)
+            dmgMultiplierLabel->Color = al_map_rgba(0, 255, 0, 255); // Green
+        else
+            dmgMultiplierLabel->Color = al_map_rgba(255, 0, 0, 255); // Red
+    }
 }
 void PlayScene::ReadMap() {
     std::string filename = std::string("Resource/map") + std::to_string(MapId) + ".txt";
@@ -400,6 +406,17 @@ void PlayScene::ReadEnemyWave() {
     }
     fin.close();
 }
+void PlayScene::PauseOnClick() {
+    if (SpeedMult == 0)
+        SpeedMult = 1;
+    else
+        SpeedMult = 0;
+    shovelMode = false; // Disable shovel mode when pausing
+    if (preview) {
+        UIGroup->RemoveObject(preview->GetObjectIterator());
+        preview = nullptr;
+    }
+}
 void PlayScene::ConstructUI() {
     // Background
     UIGroup->AddNewObject(new Engine::Image("play/sand.png", 1280, 0, 320, 832));
@@ -413,33 +430,58 @@ void PlayScene::ConstructUI() {
                            Engine::Sprite("play/tower-base.png", 1294, 136, 0, 0, 0, 0),
                            Engine::Sprite("play/turret-1.png", 1294, 136 - 8, 0, 0, 0, 0), 1294, 136, MachineGunTurret::Price);
     // Reference: Class Member Function Pointer and std::bind.
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 0));
+    btn->SetOnClickCallback([this]() { UIBtnClicked(0); });
     UIGroup->AddNewControlObject(btn);
     // Button 2
     btn = new TurretButton("play/floor.png", "play/dirt.png",
                            Engine::Sprite("play/tower-base.png", 1370, 136, 0, 0, 0, 0),
                            Engine::Sprite("play/turret-2.png", 1370, 136 - 8, 0, 0, 0, 0), 1370, 136, LaserTurret::Price);
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 1));
+    btn->SetOnClickCallback([this]() { UIBtnClicked(1); });
     UIGroup->AddNewControlObject(btn);
     //Button 3
     btn = new TurretButton("play/floor.png", "play/dirt.png",
     Engine::Sprite("play/tower-base.png", 1446, 136, 0, 0, 0, 0),
     Engine::Sprite("play/turret-fire.png", 1446, 128, 0, 0, 0, 0), 1446, 136, CircleShotTurret::Price);
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 2));
+    btn->SetOnClickCallback([this]() { UIBtnClicked(2); });
     UIGroup->AddNewControlObject(btn);
     //Button 4
     btn = new TurretButton("play/floor.png", "play/dirt.png",
     Engine::Sprite("play/tower-base.png", 1522, 136, 0, 0, 0, 0),
     Engine::Sprite("play/turret-ice.png", 1522, 128, 0, 0, 0, 0), 1522, 136, IceTurret::Price);
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 3));
+    btn->SetOnClickCallback([this]() { UIBtnClicked(3); });
     UIGroup->AddNewControlObject(btn);
     // shovel
     btn = new TurretButton("play/floor.png", "play/dirt.png",
-    Engine::Sprite("play/tool-base.png", 1294, 300, 0, 0, 0, 0),
+    Engine::Sprite("play/shovel.png", 1294, 292, 0, 0, 0, 0),
     Engine::Sprite("play/shovel.png", 1294, 292, 0, 0, 0, 0), 1294, 300, 0);
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 4));
+    btn->SetOnClickCallback([this]() { UIBtnClicked(4); });
     UIGroup->AddNewControlObject(btn);
 
+
+
+   //pasue
+    Engine::ImageButton* pauseButton = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", 1325, 600, 100, 50);
+    pauseButton->SetOnClickCallback([this]() { UIBtnClicked(5); });
+    UIGroup->AddNewControlObject(pauseButton);
+
+    //dmg multiplier
+    Engine::ImageButton* dmgmultiplierButton = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", 1425-40, 300, 200, 70);
+    dmgmultiplierButton->SetOnClickCallback([this]() { UIBtnClicked(6); });
+    UIGroup->AddNewControlObject(dmgmultiplierButton);
+
+    //restart
+    Engine::ImageButton* restartButton = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", 1468, 600, 100, 50);
+    restartButton->SetOnClickCallback([this]() {
+        Engine::GameEngine::GetInstance().ChangeScene("play");
+    });
+    UIGroup->AddNewControlObject(restartButton);
+
+    //back button
+    Engine::ImageButton* backButton = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", 1450-50, 700-30, 100, 50);
+    backButton->SetOnClickCallback([]() {
+        Engine::GameEngine::GetInstance().ChangeScene("stage-select");
+    });
+    UIGroup->AddNewControlObject(backButton);
 
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
@@ -467,6 +509,21 @@ void PlayScene::ConstructUI() {
     UIGroup->AddNewObject(new Engine::Label(
         std::string("FREE") ,
         "pirulen.ttf", 20, 1294, 370));
+
+    UIGroup->AddNewObject(new Engine::Label(
+        std::string("$")+std::to_string((dmgMultiplierPrice)) ,
+        "pirulen.ttf", 20, 1400+50, 370));
+    AddNewObject(new Engine::Label("PAUSE", "pirulen.ttf", 15, 1325+50, 625, 0, 0, 0, 255, 0.5, 0.5));
+    UIGroup->AddNewObject(new Engine::Label("RESTART", "pirulen.ttf", 15, 1468+50, 625, 0, 0, 0, 255, 0.5, 0.5));
+    UIGroup->AddNewObject(new Engine::Label("BACK", "pirulen.ttf", 15, 1450, 700, 0, 0, 0, 255, 0.5, 0.5));
+    ALLEGRO_COLOR textColor;
+    if (this->money >= dmgMultiplierPrice)
+        textColor = al_map_rgba(0, 255, 0, 255);  // Green
+    else
+        textColor = al_map_rgba(255, 0, 0, 255);  // Red
+
+    dmgMultiplierLabel = new Engine::Label("DMG MULTIPLIER", "pirulen.ttf", 15, 1400+85, 320+11, textColor.r * 255, textColor.g * 255, textColor.b * 255, 255, 0.5, 0.5);
+    UIGroup->AddNewObject(dmgMultiplierLabel);
 }
 
 void PlayScene::UIBtnClicked(int id) {
@@ -504,11 +561,18 @@ void PlayScene::UIBtnClicked(int id) {
         preview->Enabled = false;
         preview->Preview = true;
         UIGroup->AddNewObject(preview);
-        OnMouseMove(preview->Position.x, preview->Position.y); // update shovel position
+       // update shovel position
         return;
     }
+    else if (id==5) {
+        PauseOnClick();
+    }
 
-
+    else if (id == 6 && money >= dmgMultiplierPrice) {
+        EarnMoney(-dmgMultiplierPrice);
+        dmgMultiplier *= 2.0f;
+        return;
+    }
     shovelMode=false;
     if (!next_preview)
         return;   // not enough money or invalid turret.

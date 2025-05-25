@@ -8,7 +8,7 @@
 #include "Scene/PlayScene.hpp"
 #include "Engine/AudioHelper.hpp"
 #include "Enemy/Enemy.hpp"
-const int IceTurret::Price = 100;
+const int IceTurret::Price = 180;
 #include "cmath"
 IceTurret::IceTurret(float x, float y) : Turret("play/tower-base.png", "play/turret-ice.png", x, y, 200, Price, 1.5) {
 }

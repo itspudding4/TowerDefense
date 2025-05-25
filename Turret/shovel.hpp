@@ -5,6 +5,8 @@
 #ifndef SHOVEL_HPP
 #define SHOVEL_HPP
 class Shovel : public Turret {
+private:
+    ALLEGRO_BITMAP* img;
 protected:
     void CreateBullet() override;
 public:

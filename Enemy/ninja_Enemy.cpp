@@ -8,7 +8,7 @@
 #include "Turret/Turret.hpp"
 #include "Bullet/Bullet.hpp"
 ninja_Enemy::ninja_Enemy(int x, int y)
-    : Enemy("play/ninja-removebg.png", x, y, 10, 50, 5, 20) {
+    : Enemy("play/ninja-removebg.png", x, y, 10, 70, 5, 30) {
 }
 
 void ninja_Enemy::Hit(float damage) {
